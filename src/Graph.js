@@ -11,371 +11,216 @@ cytoscape.use(contextMenus);
 
 const Graph = () => {
   const cyRef = useRef(null);
+  const [cy, setCy] = useState(cytoscape());
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
+
+  const hiddenNodesRef = useRef(new Set());
+
+  const collapseNode = (node) => {
+    console.log("node.data => ", node.data, node.data("level"));
+    if (node.data("level") > 1) {
+      const parentNodes = node.predecessors().filter((ele) => ele.isNode());
+      parentNodes.forEach((parentNode) => {
+        hiddenNodesRef.current.add(parentNode.id());
+        parentNode.hide();
+      });
+    } else {
+      node
+        .connectedEdges()
+        .targets()
+        .forEach((connectedNode) => {
+          hiddenNodesRef.current.add(connectedNode.id());
+          connectedNode.hide();
+        });
+    }
+  };
+
+  const expandNode = (node) => {
+    node
+      .connectedEdges()
+      .targets()
+      .forEach((connectedNode) => {
+        if (hiddenNodesRef.current.has(connectedNode.id())) {
+          hiddenNodesRef.current.delete(connectedNode.id());
+          connectedNode.show();
+        }
+      });
+  };
+
   useEffect(() => {
     const savedZoom = parseFloat(localStorage.getItem("cyZoom"));
     const savedPan = JSON.parse(localStorage.getItem("cyPan"));
-    const savedElements = JSON.parse(localStorage.getItem('cyElements')) || [];
+    const savedElements = JSON.parse(localStorage.getItem("cyElements")) || [];
+    const savedPositions = JSON.parse(localStorage.getItem("cyPositions") || "{}");
     const initels = [
-        // Nodes
-        {
-          data: {
-            id: "1",
-            label: "Da 1.107.1 x E 1.316.1 2.1325 (2.1)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "100px",
-            height: "50px",
-            fontSize: "8px",
-            shape: "right-rhomboid",
-            // shapeType: "trapezium",
-          },
+      // Nodes
+      {
+        data: {
+          id: "level-1.1",
+          label: "Da 1.107.15 x E 1.316.15 2.1325 (2.15)",
+          level: "1",
+          stroke: "#D97706",
+          fill: "#fef3c7",
+          width: "50px",
+          height: "50px",
+          fontSize: "8px",
         },
-        {
-          data: {
-            id: "2",
-            label: "Da 1.107.2 x E 1.316.2 2.1325 (2.2)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "3",
-            label: "Da 1.107.3 x E 1.316.3 2.1325 (2.3)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "4",
-            label: "Da 1.107.4 x E 1.316.4 2.1325 (2.4)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "5",
-            label: "Da 1.107.5 x E 1.316.5 2.1325 (2.5)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "6",
-            label: "Da 1.107.6 x E 1.316.6 2.1325 (2.6)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "7",
-            label: "Da 1.107.7 x E 1.316.7 2.1325 (2.7)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "8",
-            label: "Da 1.107.8 x E 1.316.8 2.1325 (2.8)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "9",
-            label: "Da 1.107.9 x E 1.316.9 2.1325 (2.9)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "10",
-            label: "Da 1.107.10 x E 1.316.10 2.1325 (2.10)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "11",
-            label: "Da 1.107.11 x E 1.316.11 2.1325 (2.11)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "12",
-            label: "Da 1.107.12 x E 1.316.12 2.1325 (2.12)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "13",
-            label: "Da 1.107.13 x E 1.316.13 2.1325 (2.13)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "14",
-            label: "Da 1.107.14 x E 1.316.14 2.1325 (2.14)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "15",
-            label: "Da 1.107.15 x E 1.316.15 2.1325 (2.15)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
+      },
 
-        {
-          data: {
-            id: "16",
-            label: "PT02_002KSG03",
-            stroke: "#CC476A",
-            fill: "#FFD0DA",
-            width: "45px",
-            height: "45px",
-            fontSize: "8px",
-          },
+      {
+        data: {
+          id: "level-2.1",
+          label: "PT02_002KSG03",
+          level: "2",
+          stroke: "#CC476A",
+          fill: "#FFD0DA",
+          width: "45px",
+          height: "45px",
+          fontSize: "8px",
         },
-        {
-          data: {
-            id: "17",
-            label: "DD1_01KSG96",
-            stroke: "#CC476A",
-            fill: "#FFD0DA",
-            width: "45px",
-            height: "45px",
-            fontSize: "8px",
-          },
+      },
+      {
+        data: {
+          id: "level-3.1",
+          label: "Da 1.107.24 x E 1.316.24 2.1325 (2.24)",
+          level: "3",
+          stroke: "#D97706",
+          fill: "#fef3c7",
+          width: "50px",
+          height: "50px",
+          fontSize: "8px",
         },
-        {
-          data: {
-            id: "18",
-            label: "DD2_02KSG97",
-            stroke: "#CC476A",
-            fill: "#FFD0DA",
-            width: "45px",
-            height: "45px",
-            fontSize: "8px",
-          },
+      },
+      {
+        data: {
+          id: "level-3.2",
+          label: "Da 1.107.25 x E 1.316.25 2.1325 (2.25)",
+          level: "3",
+          stroke: "#D97706",
+          fill: "#fef3c7",
+          width: "50px",
+          height: "50px",
+          fontSize: "8px",
         },
+      },
+      {
+        data: {
+          id: "level-3.3",
+          label: "Da 1.107.26 x E 1.316.26 2.1326 (2.26)",
+          level: "3",
+          stroke: "#D97706",
+          fill: "#fef3c7",
+          width: "50px",
+          height: "50px",
+          fontSize: "8px",
+        },
+      },
+      {
+        data: {
+          id: "level-4.1",
+          label: "Da 1.107.22",
+          level: "4",
+          stroke: "#007E46",
+          fill: "#B3E2CD",
+          width: "40px",
+          height: "40px",
+          fontSize: "8px",
+          shape: "right-rhomboid",
+        },
+      },
+      {
+        data: {
+          id: "level-4.2",
+          label: "Da 1.107.23",
+          level: "4",
+          stroke: "#007E46",
+          fill: "#B3E2CD",
+          width: "40px",
+          height: "40px",
+          fontSize: "8px",
+          shape: "round-triangle",
+        },
+      },
+      {
+        data: {
+          id: "level-4.3",
+          label: "Da 1.107.24",
+          level: "4",
+          stroke: "#007E46",
+          fill: "#B3E2CD",
+          width: "40px",
+          height: "40px",
+          fontSize: "8px",
+          shape: "round-rectangle",
+        },
+      },
+      {
+        data: {
+          id: "level-4.4",
+          label: "Da 1.107.5",
+          level: "4",
+          stroke: "#007E46",
+          fill: "#B3E2CD",
+          width: "40px",
+          height: "40px",
+          fontSize: "8px",
+        },
+      },
+      {
+        data: {
+          id: "level-5.1",
+          label: "15",
+          level: "5",
+          stroke: "#7a52cc",
+          fill: "#e0d1ff",
+          width: "30px",
+          height: "30px",
+          fontSize: "12px",
+        },
+      },
+      {
+        data: {
+          id: "level-6.1",
+          label: "Da 1.107.6 x E 1.316.6 2.666 (2.60)",
+          level: "6",
+          stroke: "#D97706",
+          fill: "#fef3c7",
+          width: "50px",
+          height: "50px",
+          fontSize: "8px",
+        },
+      },
+      {
+        data: {
+          id: "level-7.1",
+          label: "DD2_02KSG97",
+          level: "7",
+          stroke: "#CC476A",
+          fill: "#FFD0DA",
+          width: "45px",
+          height: "45px",
+          fontSize: "8px",
+        },
+      },
 
-        {
-          data: {
-            id: "19",
-            label: "15",
-            stroke: "#7a52cc",
-            fill: "#e0d1ff",
-            width: "30px",
-            height: "30px",
-            fontSize: "12px",
-          },
-        },
-        {
-          data: {
-            id: "20",
-            label: "40",
-            stroke: "#7a52cc",
-            fill: "#e0d1ff",
-            width: "30px",
-            height: "30px",
-            fontSize: "12px",
-          },
-        },
-        {
-          data: {
-            id: "21",
-            label: "70",
-            stroke: "#7a52cc",
-            fill: "#e0d1ff",
-            width: "30px",
-            height: "30px",
-            fontSize: "12px",
-          },
-        },
+      // Edges
+      { data: { id: "rel-level-1.1", source: "level-2.1", target: "level-1.1" } },
 
-        {
-          data: {
-            id: "22",
-            label: "Da 1.107.22 x E 1.316.22 2.1325 (2.22)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "23",
-            label: "Da 1.107.23 x E 1.316.23 2.1325 (2.23)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "24",
-            label: "Da 1.107.24 x E 1.316.24 2.1325 (2.24)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "25",
-            label: "Da 1.107.25 x E 1.316.25 2.1325 (2.25)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "26",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "27",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "28",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "29",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "30",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
-        {
-          data: {
-            id: "31",
-            label: "Da 1.107.26 x E 1.316.26 2.1325 (2.26)",
-            stroke: "#D97706",
-            fill: "#fef3c7",
-            width: "50px",
-            height: "50px",
-            fontSize: "8px",
-          },
-        },
+      { data: { id: "rel-level-2.1", source: "level-2.1", target: "level-3.1" } },
+      { data: { id: "rel-level-2.2", source: "level-2.1", target: "level-3.2" } },
+      { data: { id: "rel-level-2.3", source: "level-2.1", target: "level-3.3" } },
 
-        // Edges
-        { data: { id: "16-1", source: "16", target: "1" } },
-        { data: { id: "1-19", source: "1", target: "19" } },
-        { data: { id: "1-20", source: "1", target: "20" } },
-        { data: { id: "1-21", source: "1", target: "21" } },
+      { data: { id: "rel-level-4.1", source: "level-4.1", target: "level-2.1" } },
+      { data: { id: "rel-level-4.2", source: "level-4.2", target: "level-2.1" } },
+      { data: { id: "rel-level-4.3", source: "level-4.3", target: "level-2.1" } },
+      { data: { id: "rel-level-4.4", source: "level-4.4", target: "level-2.1" } },
 
-        { data: { id: "17-2", source: "17", target: "2" } },
-        { data: { id: "18-2", source: "18", target: "2" } },
-      ];
+      { data: { id: "rel-level-5.1", source: "level-5.1", target: "level-4.4" } },
+      { data: { id: "rel-level-6.1", source: "level-6.1", target: "level-5.1" } },
+      { data: { id: "rel-level-7.1", source: "level-7.1", target: "level-6.1" } },
+    ];
 
-    const cy = cytoscape({
+    const cyInstance = cytoscape({
       container: cyRef.current,
       elements: savedElements.length ? savedElements : initels,
       style: [
@@ -392,9 +237,25 @@ const Graph = () => {
             "text-valign": "center",
             "text-halign": "center",
             "font-size": "data(fontSize)",
-            "text-wrap": "wrap",
             "text-max-width": "30px",
-            width: "data(width)",
+            "text-wrap": "wrap",
+            width: (node) => {
+              let addw = 0;
+              switch (node.data("shape")) {
+                case "right-rhomboid":
+                  addw = 30;
+                  break;
+                case "round-triangle":
+                  addw = 30;
+                  break;
+                case "round-rectangle":
+                  break;
+
+                default:
+                  break;
+              }
+              return parseInt(node.data("width")) + addw + "px";
+            },
             height: "data(height)",
             "padding-bottom": "5px",
             "padding-top": "5px",
@@ -424,77 +285,88 @@ const Graph = () => {
         },
       ],
       layout: savedElements.length
-        ? { name: "preset" }
+        ? {
+            name: "preset",
+            positions: (node) => savedPositions[node.id()] || node.position(),
+          }
         : {
             name: "dagre",
-            rankSep: 80, // Jarak antara peringkat (levels of nodes)
-            nodeSep: 50, // Jarak antara node dalam peringkat yang sama
+            rankSep: 100,
+            nodeSep: 50,
             fit: false,
             padding: 30,
             nodeDimensionsIncludeLabels: true,
           },
     });
 
+    setCy(cyInstance);
+
     // Event listener untuk perubahan seleksi
-    cy.on("select", "node", (event) => {
+    cyInstance.on("select", "node", (event) => {
       var target = event.target || event.cyTarget;
-      console.log("Node selected: " + target.id());
+      console.log("Node selected: " + target.id(),target.data('level'));
       setSelectedNodeIds((prevSelected) => [...prevSelected, target.id()]);
-      saveElementsToLocalStorage(cy);
+      saveElementsToLocalStorage();
     });
 
-    cy.on("unselect", "node", (event) => {
+    cyInstance.on("unselect", "node", (event) => {
       var target = event.target || event.cyTarget;
       console.log("Node unselected: " + target.id());
       setSelectedNodeIds((prevSelected) =>
         prevSelected.filter((id) => id !== target.id())
       );
-      saveElementsToLocalStorage(cy);
+      saveElementsToLocalStorage();
     });
 
-
-    const saveElementsToLocalStorage = (cy) => {
-        const elements = cy.elements().jsons();
-        localStorage.setItem('cyElements', JSON.stringify(elements));
+    const saveElementsToLocalStorage = () => {
+      const elements = cyInstance.elements().jsons();
+      localStorage.setItem("cyElements", JSON.stringify(elements));
     };
 
-    
-    // Terapkan zoom dan pan setelah inisialisasi Cytoscape
-    cy.ready(() => {
-        saveElementsToLocalStorage(cy);
-        cy.zoom(savedZoom);
-        cy.pan(savedPan);
+    const savePositionsToLocalStorage = () => {
+      const positions = {};
+      cyInstance.nodes().forEach((node) => {
+        positions[node.id()] = node.position();
+      });
+      localStorage.setItem("cyPositions", JSON.stringify(positions));
+    };
+
+    // Apply zoom and pan after Cytoscape initialization
+    cyInstance.ready(() => {
+      cyInstance.zoom(savedZoom);
+      cyInstance.pan(savedPan);
+      saveElementsToLocalStorage();
+      savePositionsToLocalStorage();
     });
 
     // Event listeners untuk menyimpan zoom dan pan ke localStorage
-    cy.on('zoom', () => {
-        localStorage.setItem('cyZoom', cy.zoom());
+    cyInstance.on("zoom", () => {
+      localStorage.setItem("cyZoom", cyInstance.zoom());
     });
 
-    cy.on('pan', () => {
-        saveElementsToLocalStorage(cy);
-        localStorage.setItem('cyPan', JSON.stringify(cy.pan()));
+    cyInstance.on("pan", () => {
+      saveElementsToLocalStorage();
+      localStorage.setItem("cyPan", JSON.stringify(cyInstance.pan()));
     });
 
     // Event listener untuk menyimpan posisi node saat posisi berubah
-    cy.on('position', 'node', (event) => {
-        const tes = cy.nodes().filter((node) => node.data("id")==event.target.id());
-        console.log("Node position: " , event.target.id(),tes[0].position());
-        saveElementsToLocalStorage(cy);
+    cyInstance.on("position", "node", () => {
+      savePositionsToLocalStorage();
     });
 
     // Fungsi untuk menambahkan node baru di atas atau di bawah node yang ada
-    const addNodes = (targetId, direction) => {
-      const existingNodes = cy.nodes().map((node) => node.data("id"));
+    const addNodes = (targetNode, direction) => {
+      const existingNodes = cyInstance.nodes().map((node) => node.data("id"));
       const newNodes = [];
-
-      for (let i = 1; i <= 30; i++) {
-        const newId = `${targetId}-${direction}-${i}`;
+      const level = parseInt(targetNode.data("level"));
+      for (let i = 1; i <= 3; i++) {
+        const newId = `${targetNode.id()}-${direction}-${i}`;
         if (!existingNodes.includes(newId)) {
           newNodes.push({
             data: {
               id: newId,
               label: `Node ${newId}`,
+              level: `${direction === "down" && level <= 1 ? level - 1 : level + 1}`,
               stroke: "#FF0000",
               fill: "#FFD700",
               width: "30px",
@@ -505,28 +377,36 @@ const Graph = () => {
           newNodes.push({
             group: "edges",
             data: {
-              id: `edge-${targetId}-${newId}`,
-              source: direction === "up" ? newId : targetId,
-              target: direction === "up" ? targetId : newId,
+              id: `edge-${targetNode.id()}-${newId}`,
+              source: direction === "up" ? newId : targetNode.id(),
+              target: direction === "up" ? targetNode.id() : newId,
             },
           });
         }
       }
 
-      cy.add(newNodes);
-      saveElementsToLocalStorage(cy);
-      cy.layout({
-        name: "dagre",
-        rankSep: 80,
-        nodeSep: 50,
-        fit: false,
-        padding: 30,
-        nodeDimensionsIncludeLabels: true,
-      }).run();
+      cyInstance.add(newNodes);
+      cyInstance
+        .layout({
+          name: "dagre",
+          rankSep: 100,
+          nodeSep: 50,
+          fit: false,
+          padding: 30,
+          nodeDimensionsIncludeLabels: true,
+        })
+        .run();
+      saveElementsToLocalStorage();
+      savePositionsToLocalStorage();
     };
 
     // Setup context menus
-    cy.contextMenus({
+    cyInstance.contextMenus({
+      submenuIndicator: {
+        src: "./right-arrow-svgrepo-com.svg",
+        width: 12,
+        height: 12,
+      },
       menuItems: [
         {
           id: "show-relationship",
@@ -542,7 +422,7 @@ const Graph = () => {
               onClickFunction: function (event) {
                 var target = event.target || event.cyTarget;
                 console.log("Drill Up on " + target.id());
-                addNodes(target.id(), "up");
+                addNodes(target, "up");
               },
             },
             {
@@ -552,7 +432,7 @@ const Graph = () => {
               onClickFunction: function (event) {
                 var target = event.target || event.cyTarget;
                 console.log("Drill Down on " + target.id());
-                addNodes(target.id(), "down");
+                addNodes(target, "down");
               },
             },
           ],
@@ -589,8 +469,22 @@ const Graph = () => {
           content: "Collapse Node",
           selector: "node",
           onClickFunction: function (event) {
+            const target = event.target || event.cyTarget;
+            if (hiddenNodesRef.current.has(target.id())) {
+              expandNode(target);
+            } else {
+              collapseNode(target);
+            }
+          },
+        },
+        {
+          id: "expand-node",
+          content: "Expand Node",
+          selector: "node",
+          onClickFunction: function (event) {
             var target = event.target || event.cyTarget;
-            console.log("Collapse Node on " + target.id());
+            console.log("Expand Node on " + target.id());
+            expandNode(target);
           },
         },
       ],
@@ -598,7 +492,7 @@ const Graph = () => {
 
     // Cleanup function to remove the instance when component unmounts
     return () => {
-      cy.destroy();
+      cyInstance.destroy();
     };
   }, []);
 
@@ -613,10 +507,21 @@ const Graph = () => {
       document.exitFullscreen();
     }
   };
+  const goToNode = (nodeId) => {
+    if (cy) {
+      const node = cy.getElementById(nodeId);
+      if (node) {
+        cy.fit(node, 250); // Adjust the second parameter for padding around the node
+        node.select();
+        console.log("node", node);
+      }
+    }
+  };
 
   return (
     <>
       <button onClick={handleFullscreen}>Toggle Fullscreen</button>
+      <button onClick={() => goToNode("1")}>Go to Node 1</button>
       <strong>{JSON.stringify(selectedNodeIds)}</strong>
       <div
         ref={cyRef}
